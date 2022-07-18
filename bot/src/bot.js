@@ -6,6 +6,10 @@ const axios = require('axios')
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
+
+// Comando de ayuda para cuando el bot esta saturado de comandos iniciales
+
+ 
 bot.help(ctx => {
     const helpMessage = `
     **Comandos del Bot**
@@ -17,11 +21,21 @@ bot.help(ctx => {
     })
 })
 
+// Con el comando /start se invoca a la funcion sendStartMessage
 
 bot.command('start', ctx => {
 sendStartMessage(ctx)
 
 })
+
+
+// Esta funcion renderea en el chat un menu que nos ayuda a utilizar las diversas
+// funciones que implementamos 
+// Aqui podemos encontrar : el req a la api creada por nosotros
+//                          el req a la api TMDB
+//                          el enlace a mi Github
+//                          el enlace a mi linkedin
+//                          y por ultimo un comentario sobre el proyecto 
 
 function sendStartMessage(ctx) {
   const startMessage = "Bienvenid@, este bot tiene diferente funcionalidades, quieres conocerlas?"
@@ -52,10 +66,15 @@ function sendStartMessage(ctx) {
 
 }
 
+//  Llamada a la api creada por nosotros
+
 async function fetchQuotes(type) {
   const res = await axios.get(`http://localhost:3000/quotes/` + type)
   return res.data.quote
 }
+
+//  Llamada a la api TMDB
+
 async function fetchMovies() {
   let token = process.env.TMDB_TOKEN
   const res = await axios.get(`https://api.themoviedb.org/3/discover/movie?api_key=${token}&page`)
@@ -71,7 +90,7 @@ bot.hears("Peliculas", async (ctx) => {
   ctx.reply(movie[index].original_title)
 })
 
-// Mennu con llamado a la api de node http://localhost:3000/
+// Menu con llamado a la api de node http://localhost:3000/
 
 
 bot.action('quotes', ctx => {
