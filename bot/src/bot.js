@@ -1,31 +1,17 @@
-require('dotenv').config()
+const {fetchMovies,fetchQuotes} = require("./controller/request") 
 
 const {Telegraf} = require('telegraf')
 
-const axios = require('axios')
+require('dotenv').config()
+
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 
-// Comando de ayuda para cuando el bot esta saturado de comandos iniciales
-
- 
-bot.help(ctx => {
-    const helpMessage = `
-    **Comandos del Bot**
-    /start - Inicia bot
-    `
-
-    bot.telegram.sendMessage(ctx.from.id, helpMessage, {
-      parse_mode: "Markdown"
-    })
-})
-
 // Con el comando /start se invoca a la funcion sendStartMessage
 
-bot.command('start', ctx => {
+bot.command(['start','Start'], ctx => {
 sendStartMessage(ctx)
-
 })
 
 
@@ -64,21 +50,6 @@ function sendStartMessage(ctx) {
   }
     )
 
-}
-
-//  Llamada a la api creada por nosotros
-
-async function fetchQuotes(type) {
-  const res = await axios.get(`http://localhost:3000/quotes/` + type)
-  return res.data.quote
-}
-
-//  Llamada a la api TMDB
-
-async function fetchMovies() {
-  let token = process.env.TMDB_TOKEN
-  const res = await axios.get(`https://api.themoviedb.org/3/discover/movie?api_key=${token}&page`)
-  return res.data.results
 }
 
 
@@ -147,22 +118,21 @@ bot.hears("Peliculas en cartelera", async (ctx) => {
 })
 
 
-
 // Escuchas Menu quotes
 
 
-bot.hears("Amistad", async (ctx) => {
+bot.hears(["Amistad","amistad"], async (ctx) => {
   const quote = await fetchQuotes('amistad')
   ctx.reply(quote)
 
 })
 
-bot.hears("Chistes cortos", async (ctx) => {
+bot.hears(["Chistes cortos","chistes cortos"], async (ctx) => {
   const quote = await fetchQuotes('graciosas')
   ctx.reply(quote)
 })
 
-bot.hears("Chistes informaticos", async (ctx) => {
+bot.hears(["Chistes informaticos","chistes informaticos"], async (ctx) => {
   const quote = await fetchQuotes('informaticos')
   ctx.reply(quote)
 })
@@ -208,17 +178,25 @@ bot.action('credits', ctx => {
     
   `
   bot.telegram.sendMessage(ctx.from.id, credit, {
-    parse_mode: "Markdown"
+    parse_mode: "Markdown",
+    disable_notification: true
   })})
 
-// Bienvenida al iniciar BOT
-bot.hears('hola bot', ctx => {
-  ctx.reply('Hola! Bienvenido !')
-})
 
-// Respuesta recibida con el comando hola
-bot.command("hola", (ctx)=> {
-  ctx.reply('Hola ' + ctx.from.first_name +'!'+ 'desde el bot')
+
+// Comando de ayuda para cuando el bot esta saturado de comandos iniciales
+
+ 
+bot.help(ctx => {
+  const helpMessage = `
+  ${ctx.from.first_name} estos son los comandos disponibles 
+  **Comandos del Bot**
+  /start - Inicia bot
+  `
+
+  bot.telegram.sendMessage(ctx.from.id, helpMessage, {
+    parse_mode: "Markdown"
+  })
 })
 
 bot.launch() 
